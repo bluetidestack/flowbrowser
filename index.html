@@ -455,8 +455,8 @@ display: none !important;
   <button id="menu-dots" type="button" onclick="toggleMyMenu(event)" style="all: unset; cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important; padding: 0 10px; font-size: 24px; color: white; display: block; position: relative; z-index: 1000000;">⋮</button>
   
   <div id="menu-dropdown" style="display: none; position: absolute; top: 40px; right: 0; background: #111; border: 1px solid #444; border-radius: 8px; padding: 5px; min-width: 180px; z-index: 1000001; box-shadow: 0 10px 30px rgba(0,0,0,1);">
-    <button id="toggle-server" type="button" onclick="handleServerToggle(event)" style="all: unset; display: block; width: calc(100% - 20px); padding: 12px 10px; color: white; font-family: sans-serif; font-size: 13px; cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important; border-radius: 4px; text-align: left; background: transparent;">Server: Proxy (Default)</button>
-  </div>
+<button id="toggle-server" type="button" onclick="handleServerToggle(event)" ...>Server: Direct Embed (Default)</button>  
+       </div>
 </div>
 
 
@@ -481,164 +481,204 @@ display: none !important;
 
   <script>
     const proxyBase = "https://api.allorigins.win/raw?url=";
-    const tabs = [];
-    let activeTabId = null;
-    let tabCounter = 0;
-    
-    // Initialize the browser with one tab
-    document.addEventListener('DOMContentLoaded', () => {
-      createNewTab();
-      
-      // Set up event listeners
-    //   document.getElementById('new-tab').addEventListener('click', createNewTab);
-    document.getElementById('new-tab').addEventListener('click', () => createNewTab());
+const tabs = [];
+let activeTabId = null;
+let tabCounter = 0;
+let useEmbed = true;  // ← MOVED HERE: Now embed is the default, proxy is fallback
 
-      document.getElementById('go-button').addEventListener('click', loadPageInActiveTab);
-      document.getElementById('toggle-devtools').addEventListener('click', toggleDevTools);
-      document.getElementById('close-devtools').addEventListener('click', closeDevTools);
-      document.getElementById('console-input').addEventListener('keydown', handleConsoleInput);
-      document.getElementById('inject-js-button').addEventListener('click', injectJavaScript);
-      document.getElementById('clear-js-button').addEventListener('click', () => {
-        document.getElementById('js-inject-area').value = '';
-      });
-      document.getElementById('save-js-button').addEventListener('click', saveJavaScriptSnippet);
-      document.getElementById('saved-snippets').addEventListener('change', loadSavedSnippet);
-      document.getElementById('clear-network-log').addEventListener('click', () => {
-        document.getElementById('network-log').innerHTML = 'Network log cleared...';
-      });
-      document.getElementById('back-button').addEventListener('click', navigateBack);
-      document.getElementById('forward-button').addEventListener('click', navigateForward);
-      document.getElementById('refresh-button').addEventListener('click', refreshPage);
+// Initialize the browser with one tab
+document.addEventListener('DOMContentLoaded', () => {
+  createNewTab();
+  
+  // Set up event listeners
+  document.getElementById('new-tab').addEventListener('click', () => createNewTab());
+
+  document.getElementById('go-button').addEventListener('click', loadPageInActiveTab);
+  document.getElementById('toggle-devtools').addEventListener('click', toggleDevTools);
+  document.getElementById('close-devtools').addEventListener('click', closeDevTools);
+  document.getElementById('console-input').addEventListener('keydown', handleConsoleInput);
+  document.getElementById('inject-js-button').addEventListener('click', injectJavaScript);
+  document.getElementById('clear-js-button').addEventListener('click', () => {
+    document.getElementById('js-inject-area').value = '';
+  });
+  document.getElementById('save-js-button').addEventListener('click', saveJavaScriptSnippet);
+  document.getElementById('saved-snippets').addEventListener('change', loadSavedSnippet);
+  document.getElementById('clear-network-log').addEventListener('click', () => {
+    document.getElementById('network-log').innerHTML = 'Network log cleared...';
+  });
+  document.getElementById('back-button').addEventListener('click', navigateBack);
+  document.getElementById('forward-button').addEventListener('click', navigateForward);
+  document.getElementById('refresh-button').addEventListener('click', refreshPage);
+  
+  // Set up devtools tabs
+  document.querySelectorAll('.devtools-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      document.querySelectorAll('.devtools-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.devtools-panel').forEach(p => p.classList.remove('active'));
       
-      // Set up devtools tabs
-      document.querySelectorAll('.devtools-tab').forEach(tab => {
-        tab.addEventListener('click', (e) => {
-          document.querySelectorAll('.devtools-tab').forEach(t => t.classList.remove('active'));
-          document.querySelectorAll('.devtools-panel').forEach(p => p.classList.remove('active'));
-          
-          e.target.classList.add('active');
-          const panelId = e.target.dataset.panel;
-          document.getElementById(`${panelId}-panel`).classList.add('active');
-        });
-      });
-      
-      // Load saved snippets from localStorage
-      loadSavedSnippetsFromStorage();
+      e.target.classList.add('active');
+      const panelId = e.target.dataset.panel;
+      document.getElementById(`${panelId}-panel`).classList.add('active');
     });
+  });
+  
+  // Load saved snippets from localStorage
+  loadSavedSnippetsFromStorage();
+  
+  // Setup menu listeners
+  setupMenuListeners();
+});
+
+function setupMenuListeners() {
+  const menuDots = document.getElementById('menu-dots');
+  const menuDiv = document.getElementById('menu-dropdown');
+  const serverBtn = document.getElementById('toggle-server');
+
+  menuDots.onmousedown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isHidden = menuDiv.style.display === 'none' || menuDiv.style.display === '';
+    menuDiv.style.display = isHidden ? 'block' : 'none';
+  };
+
+  serverBtn.onmousedown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+      
+    useEmbed = !useEmbed;
     
-    function createNewTab(url = null) {
-      const tabId = `tab-${tabCounter++}`;
-      
-      // Create tab button
-      const tabElement = document.createElement('div');
-      tabElement.className = 'tab';
-      tabElement.dataset.tabId = tabId;
-    tabElement.innerHTML = `<div class="tab-title">New Tab</div><span class="tab-close">×</span>`;
+    if (useEmbed) {
+      serverBtn.innerText = "Server: Direct Embed (Default)";
+    } else {
+      serverBtn.innerText = "Server: Proxy Fallback";
+    }
+    
+    if (activeTabId) loadPageInActiveTab();
+    
+    menuDiv.style.display = 'none';
+  };
 
+  // Global close listener
+  window.addEventListener('mousedown', (e) => {
+    if (menuDiv && menuDiv.style.display === 'block' && !menuDiv.contains(e.target) && !menuDots.contains(e.target)) {
+      menuDiv.style.display = 'none';
+    }
+  });
+}
 
-      tabElement.addEventListener('click', (e) => {
-        if (!e.target.classList.contains('tab-close')) {
-          activateTab(tabId);
-        }
-      });
-      
-      // Add close button functionality
-      const closeButton = tabElement.querySelector('.tab-close');
-      closeButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        closeTab(tabId);
-      });
-      
-      // Insert tab before the new tab button
-      document.getElementById('tab-bar').insertBefore(tabElement, document.getElementById('new-tab'));
-      
-      // Create iframe container
-      const iframeContainer = document.createElement('div');
-      iframeContainer.className = 'iframe-container';
-      iframeContainer.id = `container-${tabId}`;
-      
-      const iframe = document.createElement('iframe');
-      iframe.id = `iframe-${tabId}`;
-      iframe.sandbox = "allow-scripts allow-forms allow-same-origin";
-      
-      iframeContainer.appendChild(iframe);
-      document.getElementById('content').appendChild(iframeContainer);
-      
-      // Add to tabs array
-      tabs.push({
-        id: tabId,
-        title: 'New Tab',
-        url: '',
-        history: [],
-        currentHistoryIndex: -1
-      });
-      
-      // Activate the new tab
+function createNewTab(url = null) {
+  const tabId = `tab-${tabCounter++}`;
+  
+  // Create tab button
+  const tabElement = document.createElement('div');
+  tabElement.className = 'tab';
+  tabElement.dataset.tabId = tabId;
+  tabElement.innerHTML = `<div class="tab-title">New Tab</div><span class="tab-close">×</span>`;
+
+  tabElement.addEventListener('click', (e) => {
+    if (!e.target.classList.contains('tab-close')) {
       activateTab(tabId);
-      
-      // If URL is provided, load it
-      if (url) {
-        document.getElementById('urlInput').value = url;
-        loadPageInActiveTab();
-      }
+    }
+  });
+  
+  // Add close button functionality
+  const closeButton = tabElement.querySelector('.tab-close');
+  closeButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeTab(tabId);
+  });
+  
+  // Insert tab before the new tab button
+  document.getElementById('tab-bar').insertBefore(tabElement, document.getElementById('new-tab'));
+  
+  // Create iframe container
+  const iframeContainer = document.createElement('div');
+  iframeContainer.className = 'iframe-container';
+  iframeContainer.id = `container-${tabId}`;
+  
+  // Create element based on useEmbed setting
+  const viewer = document.createElement(useEmbed ? 'embed' : 'iframe');
+  viewer.id = `iframe-${tabId}`;
+  if (!useEmbed) {
+    viewer.sandbox = "allow-scripts allow-forms allow-same-origin";
+  }
+  
+  iframeContainer.appendChild(viewer);
+  document.getElementById('content').appendChild(iframeContainer);
+  
+  // Add to tabs array
+  tabs.push({
+    id: tabId,
+    title: 'New Tab',
+    url: '',
+    history: [],
+    currentHistoryIndex: -1
+  });
+  
+  // Activate the new tab
+  activateTab(tabId);
+  
+  // If URL is provided, load it
+  if (url) {
+    document.getElementById('urlInput').value = url;
+    loadPageInActiveTab();
+  }
 
-      activateTab(tabId);
-        updateTabTitle(tabId, 'New Tab');
-      
-      updateTabCount();
-    }
-    
-    function activateTab(tabId) {
-      // Deactivate all tabs
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.iframe-container').forEach(container => container.classList.remove('active'));
-      
-      // Activate selected tab
-      document.querySelector(`.tab[data-tab-id="${tabId}"]`).classList.add('active');
-      document.getElementById(`container-${tabId}`).classList.add('active');
-      
-      // Update active tab ID
-      activeTabId = tabId;
-      
-      // Update URL input with the active tab's URL
-      const tab = tabs.find(t => t.id === tabId);
-      if (tab && tab.url) {
-        document.getElementById('urlInput').value = tab.url;
-      } else {
-        document.getElementById('urlInput').value = '';
-      }
-      
-      updateNavigationButtons();
-    }
-    
-    function closeTab(tabId) {
-      // Don't close if it's the last tab
-      if (tabs.length <= 1) {
-        return;
-      }
-      
-      // Remove tab from DOM
-      const tabElement = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
-      tabElement.remove();
-      
-      // Remove iframe container
-      const container = document.getElementById(`container-${tabId}`);
-      container.remove();
-      
-      // Remove from tabs array
-      const tabIndex = tabs.findIndex(t => t.id === tabId);
-      tabs.splice(tabIndex, 1);
-      
-      // If closing the active tab, activate another one
-      if (activeTabId === tabId) {
-        // Activate the tab to the left, or the first tab if there's none
-        const newActiveTab = tabs[Math.max(0, tabIndex - 1)];
-        activateTab(newActiveTab.id);
-      }
-      
-      updateTabCount();
-    }
-    
+  updateTabTitle(tabId, 'New Tab');
+  updateTabCount();
+}
+
+function activateTab(tabId) {
+  // Deactivate all tabs
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.iframe-container').forEach(container => container.classList.remove('active'));
+  
+  // Activate selected tab
+  document.querySelector(`.tab[data-tab-id="${tabId}"]`).classList.add('active');
+  document.getElementById(`container-${tabId}`).classList.add('active');
+  
+  // Update active tab ID
+  activeTabId = tabId;
+  
+  // Update URL input with the active tab's URL
+  const tab = tabs.find(t => t.id === tabId);
+  if (tab && tab.url) {
+    document.getElementById('urlInput').value = tab.url;
+  } else {
+    document.getElementById('urlInput').value = '';
+  }
+  
+  updateNavigationButtons();
+}
+
+function closeTab(tabId) {
+  // Don't close if it's the last tab
+  if (tabs.length <= 1) {
+    return;
+  }
+  
+  // Remove tab from DOM
+  const tabElement = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+  tabElement.remove();
+  
+  // Remove iframe container
+  const container = document.getElementById(`container-${tabId}`);
+  container.remove();
+  
+  // Remove from tabs array
+  const tabIndex = tabs.findIndex(t => t.id === tabId);
+  tabs.splice(tabIndex, 1);
+  
+  // If closing the active tab, activate another one
+  if (activeTabId === tabId) {
+    // Activate the tab to the left, or the first tab if there's none
+    const newActiveTab = tabs[Math.max(0, tabIndex - 1)];
+    activateTab(newActiveTab.id);
+  }
+  
+  updateTabCount();
+}
+
 function updateTabTitle(tabId, title) {
   const tab = tabs.find(t => t.id === tabId);
   if (!tab) return;
@@ -683,75 +723,9 @@ function updateTabTitle(tabId, title) {
   `;
 }
 
-
-
-let useEmbed = false;
-
-// Toggle Menu Visibility
-document.getElementById('menu-dots').onclick = () => {
-  document.getElementById('menu-dropdown').classList.toggle('show');
-};
-
-// Close menu if clicking outside
-window.onclick = (e) => {
-  if (!e.target.matches('#menu-dots')) {
-    document.getElementById('menu-dropdown').classList.remove('show');
-  }
-};
-
-// Server Toggle Logic
-document.getElementById('toggle-server').onclick = function() {
-  useEmbed = !useEmbed;
-  this.innerText = useEmbed ? "Change server (Current: Embed)" : "Change server (Current: Proxy)";
-  
-  if (activeTabId) {
-    const container = document.getElementById(`container-${activeTabId}`);
-    const currentViewer = container.querySelector('iframe, embed');
-    const currentUrl = document.getElementById('urlInput').value;
-
-    // Create the new element type
-    const newViewer = document.createElement(useEmbed ? 'embed' : 'iframe');
-    newViewer.id = `iframe-${activeTabId}`; // Keeping ID consistent for your existing functions
-    newViewer.style.width = "100%";
-    newViewer.style.height = "100%";
-    newViewer.style.border = "none";
-    
-    if (!useEmbed) {
-       newViewer.sandbox = "allow-scripts allow-forms allow-same-origin";
-    }
-
-    // Swap them out
-    container.innerHTML = '';
-    container.appendChild(newViewer);
-    
-    // Trigger reload with new "server" logic
-    if (currentUrl) loadPageInActiveTab();
-  }
-  updateStatus(useEmbed ? "Switched to Direct Embed" : "Switched to AllOrigins Proxy");
-};
-
-// Modify your existing createNewTab to respect the setting
-const originalCreateTab = createNewTab;
-createNewTab = function(url) {
-  originalCreateTab(url);
-  // Ensure new tabs match current server setting
-  const container = document.getElementById(`container-${activeTabId}`);
-  if (useEmbed && container.querySelector('iframe')) {
-      const embed = document.createElement('embed');
-      embed.id = `iframe-${activeTabId}`;
-      embed.style.width = "100%";
-      embed.style.height = "100%";
-      container.innerHTML = '';
-      container.appendChild(embed);
-  }
-};
-
-
-
-    
-    function looksLikeUrl(str) {
-      return /\./.test(str) && !/\s/.test(str);
-    }
+function looksLikeUrl(str) {
+  return /\./.test(str) && !/\s/.test(str);
+}
 
 function prepareUrl(inputStr) {
   inputStr = inputStr.trim();
@@ -768,8 +742,6 @@ function prepareUrl(inputStr) {
   }
 }
 
-    
-    
 const loadingMessages = [
   "No ultraviolet?!",
   "Bro can only play iready math games",
@@ -853,8 +825,6 @@ function getRandomError() {
   return errorMessages[Math.floor(Math.random() * errorMessages.length)];
 }
 
-
-// Helper to get a random message
 function getRandomSplash() {
   const index = Math.floor(Math.random() * loadingMessages.length);
   return loadingMessages[index];
@@ -880,7 +850,7 @@ async function loadPageInActiveTab(isNavigating = false) {
 
   // 1. CREATE THE BLUR OVERLAY
   const loader = document.createElement('div');
-  loader.className = 'loading-overlay-dynamic'; // Unique class to avoid conflicts
+  loader.className = 'loading-overlay-dynamic';
   loader.style = `
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -959,115 +929,112 @@ async function loadPageInActiveTab(isNavigating = false) {
     
     urlInput.style.opacity = "1";
     goButton.innerText = "Go";
-    updateNavigationButtons(); // Update the Back/Forward states
+    updateNavigationButtons();
   }
 }
 
-
-    
-    function injectProxyScript(html, baseUrl) {
-      const baseTag = `<base href="${baseUrl}">`;
-      const interceptScript = `
-        <script>
-          // Intercept link clicks
-          document.addEventListener('click', e => {
-            const a = e.target.closest('a[href]');
-            if (a && a.href && a.target !== '_blank') {
-              e.preventDefault();
-              parent.postMessage({ type: 'navigate', href: a.href }, '*');
-            }
-          });
-          
-          // Intercept console methods
-          const originalConsole = {
-            log: console.log,
-            error: console.error,
-            warn: console.warn,
-            info: console.info
-          };
-          
-          console.log = function(...args) {
-            originalConsole.log(...args);
-            parent.postMessage({ 
-              type: 'console', 
-              method: 'log', 
-              args: args.map(arg => String(arg))
-            }, '*');
-          };
-          
-          console.error = function(...args) {
-            originalConsole.error(...args);
-            parent.postMessage({ 
-              type: 'console', 
-              method: 'error', 
-              args: args.map(arg => String(arg))
-            }, '*');
-          };
-          
-          console.warn = function(...args) {
-            originalConsole.warn(...args);
-            parent.postMessage({ 
-              type: 'console', 
-              method: 'warn', 
-              args: args.map(arg => String(arg))
-            }, '*');
-          };
-          
-          console.info = function(...args) {
-            originalConsole.info(...args);
-            parent.postMessage({ 
-              type: 'console', 
-              method: 'info', 
-              args: args.map(arg => String(arg))
-            }, '*');
-          };
-          
-          // Intercept fetch requests for network panel
-          const originalFetch = window.fetch;
-          window.fetch = function(resource, init) {
-            const url = typeof resource === 'string' ? resource : resource.url;
-            parent.postMessage({ 
-              type: 'network', 
-              method: init?.method || 'GET',
-              url: url
-            }, '*');
-            return originalFetch.apply(this, arguments);
-          };
-          
-          // Intercept XHR for network panel
-          const originalXHROpen = XMLHttpRequest.prototype.open;
-          XMLHttpRequest.prototype.open = function(method, url) {
-            this._method = method;
-            this._url = url;
-            return originalXHROpen.apply(this, arguments);
-          };
-          
-          const originalXHRSend = XMLHttpRequest.prototype.send;
-          XMLHttpRequest.prototype.send = function() {
-            parent.postMessage({ 
-              type: 'network', 
-              method: this._method,
-              url: this._url
-            }, '*');
-            return originalXHRSend.apply(this, arguments);
-          };
-        <\/script>
-      `;
+function injectProxyScript(html, baseUrl) {
+  const baseTag = `<base href="${baseUrl}">`;
+  const interceptScript = `
+    <script>
+      // Intercept link clicks
+      document.addEventListener('click', e => {
+        const a = e.target.closest('a[href]');
+        if (a && a.href && a.target !== '_blank') {
+          e.preventDefault();
+          parent.postMessage({ type: 'navigate', href: a.href }, '*');
+        }
+      });
       
-      const styleOverride = `
-        <style>
-          /* Optional: Add any style overrides here */
-        </style>
-      `;
+      // Intercept console methods
+      const originalConsole = {
+        log: console.log,
+        error: console.error,
+        warn: console.warn,
+        info: console.info
+      };
       
-      if (/<head[^>]*>/i.test(html)) {
-        return html.replace(/<head[^>]*>/i, match => match + baseTag + interceptScript + styleOverride);
-      } else {
-        return baseTag + interceptScript + styleOverride + html;
-      }
-    }
+      console.log = function(...args) {
+        originalConsole.log(...args);
+        parent.postMessage({ 
+          type: 'console', 
+          method: 'log', 
+          args: args.map(arg => String(arg))
+        }, '*');
+      };
+      
+      console.error = function(...args) {
+        originalConsole.error(...args);
+        parent.postMessage({ 
+          type: 'console', 
+          method: 'error', 
+          args: args.map(arg => String(arg))
+        }, '*');
+      };
+      
+      console.warn = function(...args) {
+        originalConsole.warn(...args);
+        parent.postMessage({ 
+          type: 'console', 
+          method: 'warn', 
+          args: args.map(arg => String(arg))
+        }, '*');
+      };
+      
+      console.info = function(...args) {
+        originalConsole.info(...args);
+        parent.postMessage({ 
+          type: 'console', 
+          method: 'info', 
+          args: args.map(arg => String(arg))
+        }, '*');
+      };
+      
+      // Intercept fetch requests for network panel
+      const originalFetch = window.fetch;
+      window.fetch = function(resource, init) {
+        const url = typeof resource === 'string' ? resource : resource.url;
+        parent.postMessage({ 
+          type: 'network', 
+          method: init?.method || 'GET',
+          url: url
+        }, '*');
+        return originalFetch.apply(this, arguments);
+      };
+      
+      // Intercept XHR for network panel
+      const originalXHROpen = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function(method, url) {
+        this._method = method;
+        this._url = url;
+        return originalXHROpen.apply(this, arguments);
+      };
+      
+      const originalXHRSend = XMLHttpRequest.prototype.send;
+      XMLHttpRequest.prototype.send = function() {
+        parent.postMessage({ 
+          type: 'network', 
+          method: this._method,
+          url: this._url
+        }, '*');
+        return originalXHRSend.apply(this, arguments);
+      };
+    <\/script>
+  `;
+  
+  const styleOverride = `
+    <style>
+      /* Optional: Add any style overrides here */
+    </style>
+  `;
+  
+  if (/<head[^>]*>/i.test(html)) {
+    return html.replace(/<head[^>]*>/i, match => match + baseTag + interceptScript + styleOverride);
+  } else {
+    return baseTag + interceptScript + styleOverride + html;
+  }
+}
 
-    // Ensure this is global
 function toggleMyMenu(e) {
   e.stopPropagation();
   const menu = document.getElementById('menu-dropdown');
@@ -1077,157 +1044,135 @@ function toggleMyMenu(e) {
 function handleServerToggle(e) {
   e.stopPropagation();
   
-  // THE ALERT TEST
-  alert("SERVER TOGGLED!"); 
-
   useEmbed = !useEmbed;
   const btn = document.getElementById('toggle-server');
   
   if (useEmbed) {
-    btn.innerText = "Server: Direct Embed";
+    btn.innerText = "Server: Direct Embed (Default)";
   } else {
-    btn.innerText = "Server: Proxy (Default)";
+    btn.innerText = "Server: Proxy Fallback";
   }
   
-  // Close menu and reload
   document.getElementById('menu-dropdown').style.display = 'none';
   if (typeof loadPageInActiveTab === 'function') {
     loadPageInActiveTab();
   }
 }
 
-// Close menu if clicking the window
-window.onmousedown = function(e) {
-  const menu = document.getElementById('menu-dropdown');
-  if (menu && menu.style.display === 'block' && !menu.contains(e.target)) {
-    menu.style.display = 'none';
-  }
-};
+function toggleDevTools() {
+  const devtools = document.getElementById('devtools');
+  devtools.classList.toggle('open');
+}
 
+function closeDevTools() {
+  document.getElementById('devtools').classList.remove('open');
+}
+
+function handleConsoleInput(e) {
+  if (e.key === 'Enter') {
+    const input = document.getElementById('console-input');
+    const code = input.value;
     
-    function toggleDevTools() {
-      const devtools = document.getElementById('devtools');
-      devtools.classList.toggle('open');
-    }
+    if (!code.trim()) return;
     
-    function closeDevTools() {
-      document.getElementById('devtools').classList.remove('open');
-    }
-    
-    function handleConsoleInput(e) {
-      if (e.key === 'Enter') {
-        const input = document.getElementById('console-input');
-        const code = input.value;
-        
-        if (!code.trim()) return;
-        
-        // Log the input to the console output
-        appendToConsole('log', `> ${code}`);
-        
-        // Execute in the active iframe
-        executeInActiveTab(code);
-        
-        // Clear the input
-        input.value = '';
-      }
-    }
-    
-    function executeInActiveTab(code) {
-      if (!activeTabId) return;
-      
-      const iframe = document.getElementById(`iframe-${activeTabId}`);
+    appendToConsole('log', `> ${code}`);
+    executeInActiveTab(code);
+    input.value = '';
+  }
+}
+
+function executeInActiveTab(code) {
+  if (!activeTabId) return;
+  
+  const iframe = document.getElementById(`iframe-${activeTabId}`);
+  try {
+    const result = iframe.contentWindow.eval(`
       try {
-        // Execute the code in the iframe and get the result
-        const result = iframe.contentWindow.eval(`
-          try {
-            const result = eval(${JSON.stringify(code)});
-            if (result !== undefined) {
-              console.log(result);
-            }
-            "SUCCESS";
-          } catch (e) {
-            console.error(e.message);
-            "ERROR: " + e.message;
-          }
-        `);
-        
-        if (result && result.startsWith && result.startsWith('ERROR:')) {
-          appendToConsole('error', result);
+        const result = eval(${JSON.stringify(code)});
+        if (result !== undefined) {
+          console.log(result);
         }
+        "SUCCESS";
       } catch (e) {
-        appendToConsole('error', `Failed to execute: ${e.message}`);
+        console.error(e.message);
+        "ERROR: " + e.message;
       }
-    }
+    `);
     
-    function injectJavaScript() {
-      const code = document.getElementById('js-inject-area').value;
-      if (!code.trim()) return;
-      
-      executeInActiveTab(code);
-      updateStatus('JavaScript injected');
+    if (result && result.startsWith && result.startsWith('ERROR:')) {
+      appendToConsole('error', result);
     }
-    
-    function appendToConsole(type, message) {
-      const consoleOutput = document.getElementById('console-output');
-      const line = document.createElement('div');
-      line.className = `console-line console-${type}`;
-      line.textContent = message;
-      consoleOutput.appendChild(line);
-      consoleOutput.scrollTop = consoleOutput.scrollHeight;
-    }
-    
-    function saveJavaScriptSnippet() {
-      const code = document.getElementById('js-inject-area').value;
-      if (!code.trim()) return;
-      
-      const snippetName = prompt('Enter a name for this snippet:');
-      if (!snippetName) return;
-      
-      // Get existing snippets
-      let savedSnippets = JSON.parse(localStorage.getItem('procksiSnippets') || '{}');
-      savedSnippets[snippetName] = code;
-      
-      // Save back to localStorage
-      localStorage.setItem('procksiSnippets', JSON.stringify(savedSnippets));
-      
-      loadSavedSnippetsFromStorage();
-      updateStatus(`Snippet "${snippetName}" saved`);
-    }
-    
-    function loadSavedSnippetsFromStorage() {
-      const savedSnippets = JSON.parse(localStorage.getItem('procksiSnippets') || '{}');
-      const select = document.getElementById('saved-snippets');
-      
-      while (select.options.length > 1) {
-        select.remove(1);
-      }
-      
-      for (const [name, code] of Object.entries(savedSnippets)) {
-        const option = document.createElement('option');
-        option.value = code;
-        option.textContent = name;
-        select.appendChild(option);
-      }
-    }
-    
-    function loadSavedSnippet(e) {
-      const code = e.target.value;
-      if (code) {
-        document.getElementById('js-inject-area').value = code;
-      }
-      // Reset the select
-      setTimeout(() => {
-        e.target.selectedIndex = 0;
-      }, 100);
-    }
-    
-    function navigateBack() {
+  } catch (e) {
+    appendToConsole('error', `Failed to execute: ${e.message}`);
+  }
+}
+
+function injectJavaScript() {
+  const code = document.getElementById('js-inject-area').value;
+  if (!code.trim()) return;
+  
+  executeInActiveTab(code);
+  updateStatus('JavaScript injected');
+}
+
+function appendToConsole(type, message) {
+  const consoleOutput = document.getElementById('console-output');
+  const line = document.createElement('div');
+  line.className = `console-line console-${type}`;
+  line.textContent = message;
+  consoleOutput.appendChild(line);
+  consoleOutput.scrollTop = consoleOutput.scrollHeight;
+}
+
+function saveJavaScriptSnippet() {
+  const code = document.getElementById('js-inject-area').value;
+  if (!code.trim()) return;
+  
+  const snippetName = prompt('Enter a name for this snippet:');
+  if (!snippetName) return;
+  
+  let savedSnippets = JSON.parse(localStorage.getItem('procksiSnippets') || '{}');
+  savedSnippets[snippetName] = code;
+  
+  localStorage.setItem('procksiSnippets', JSON.stringify(savedSnippets));
+  
+  loadSavedSnippetsFromStorage();
+  updateStatus(`Snippet "${snippetName}" saved`);
+}
+
+function loadSavedSnippetsFromStorage() {
+  const savedSnippets = JSON.parse(localStorage.getItem('procksiSnippets') || '{}');
+  const select = document.getElementById('saved-snippets');
+  
+  while (select.options.length > 1) {
+    select.remove(1);
+  }
+  
+  for (const [name, code] of Object.entries(savedSnippets)) {
+    const option = document.createElement('option');
+    option.value = code;
+    option.textContent = name;
+    select.appendChild(option);
+  }
+}
+
+function loadSavedSnippet(e) {
+  const code = e.target.value;
+  if (code) {
+    document.getElementById('js-inject-area').value = code;
+  }
+  setTimeout(() => {
+    e.target.selectedIndex = 0;
+  }, 100);
+}
+
+function navigateBack() {
   const tab = tabs.find(t => t.id === activeTabId);
   if (tab && tab.currentHistoryIndex > 0) {
     tab.currentHistoryIndex--;
     const prevUrl = tab.history[tab.currentHistoryIndex];
     document.getElementById('urlInput').value = prevUrl;
-    loadPageInActiveTab(true); // 'true' tells the engine NOT to add a new history entry
+    loadPageInActiveTab(true);
   }
 }
 
@@ -1242,62 +1187,56 @@ function navigateForward() {
 }
 
 function refreshPage() {
-  loadPageInActiveTab(true); // Simply re-loads the current URL
+  loadPageInActiveTab(true);
 }
 
-    
-    function updateNavigationButtons() {
+function updateNavigationButtons() {
   const tab = tabs.find(t => t.id === activeTabId);
   const backBtn = document.getElementById('back-button');
   const forwardBtn = document.getElementById('forward-button');
 
   if (!tab) return;
 
-  // Disable 'Back' if at the start of history
   backBtn.disabled = tab.currentHistoryIndex <= 0;
   backBtn.style.opacity = backBtn.disabled ? "0.3" : "1";
 
-  // Disable 'Forward' if at the end of history
   forwardBtn.disabled = tab.currentHistoryIndex >= tab.history.length - 1;
   forwardBtn.style.opacity = forwardBtn.disabled ? "0.3" : "1";
 }
 
-    
-    function updateStatus(message) {
-      document.getElementById('status-text').textContent = message;
-    }
-    
-    function updateTabCount() {
-      document.getElementById('tab-count').textContent = `Tabs: ${tabs.length}`;
-    }
-    
-    window.addEventListener("message", e => {
-      if (e.data?.type === "navigate" && e.data.href) {
-        document.getElementById('urlInput').value = e.data.href;
-        loadPageInActiveTab();
-      } else if (e.data?.type === "console") {
-        appendToConsole(e.data.method, e.data.args.join(' '));
-      } else if (e.data?.type === "network") {
-        const networkLog = document.getElementById('network-log');
-        const entry = document.createElement('div');
-        entry.className = 'console-line';
-        entry.textContent = `${e.data.method}: ${e.data.url}`;
-        networkLog.appendChild(entry);
-        networkLog.scrollTop = networkLog.scrollHeight;
-      }
-      else if (e.data?.type === "reload") {
-        loadPageInActiveTab(); // Re-runs the whole engine when button is clicked
-      }
-    });
-    
-    // URL input event
-    document.getElementById('urlInput').addEventListener("keydown", e => {
-      if (e.key === "Enter") {
-        loadPageInActiveTab();
-      }
-    });
+function updateStatus(message) {
+  document.getElementById('status-text').textContent = message;
+}
 
-// Add to <script>
+function updateTabCount() {
+  document.getElementById('tab-count').textContent = `Tabs: ${tabs.length}`;
+}
+
+window.addEventListener("message", e => {
+  if (e.data?.type === "navigate" && e.data.href) {
+    document.getElementById('urlInput').value = e.data.href;
+    loadPageInActiveTab();
+  } else if (e.data?.type === "console") {
+    appendToConsole(e.data.method, e.data.args.join(' '));
+  } else if (e.data?.type === "network") {
+    const networkLog = document.getElementById('network-log');
+    const entry = document.createElement('div');
+    entry.className = 'console-line';
+    entry.textContent = `${e.data.method}: ${e.data.url}`;
+    networkLog.appendChild(entry);
+    networkLog.scrollTop = networkLog.scrollHeight;
+  }
+  else if (e.data?.type === "reload") {
+    loadPageInActiveTab();
+  }
+});
+
+document.getElementById('urlInput').addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    loadPageInActiveTab();
+  }
+});
+
 let escapeCount = 0;
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
@@ -1310,12 +1249,11 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-
+// Menu and server toggle with mousedown
 const menuDots = document.getElementById('menu-dots');
 const menuDiv = document.getElementById('menu-dropdown');
 const serverBtn = document.getElementById('toggle-server');
 
-// Using 'mousedown' because 'click' is often swallowed by iframes
 menuDots.onmousedown = (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -1329,11 +1267,10 @@ serverBtn.onmousedown = (e) => {
     
   useEmbed = !useEmbed;
   
-  // Logic to swap text manually
   if (useEmbed) {
-    serverBtn.innerText = "Server: Direct Embed";
+    serverBtn.innerText = "Server: Direct Embed (Default)";
   } else {
-    serverBtn.innerText = "Server: Proxy (Default)";
+    serverBtn.innerText = "Server: Proxy Fallback";
   }
   
   if (activeTabId) loadPageInActiveTab();
@@ -1347,7 +1284,5 @@ window.addEventListener('mousedown', (e) => {
     menuDiv.style.display = 'none';
   }
 });
-
   </script>
 </html>
-
