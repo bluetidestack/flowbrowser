@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Clever | Portal</title>
+  <link rel="icon" href="https://resources.finalsite.net/images/f_auto,q_auto/v1689877141/mooreschoolscom/emadd6nvplrnh1vsswjf/Clever-Logo.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+    * {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  /* Image now spans the whole viewport */
+  background: url('https://redtide-stack.github.io/zeroOS-assets/dark-bgnew.png') center/cover no-repeat fixed;
+  color: #FFFFFF; 
+  overflow: hidden; 
+}
+
+/* Base style for top bars: VERY transparent background with a blur */
+#tab-bar, #controls {
+  background: rgba(255, 255, 255, 0.05); /* Almost transparent white */
+  backdrop-filter: blur(15px); /* The frosted glass effect */
+  -webkit-backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Very subtle border line */
+}
+
+
+#controls {
+  padding: 0.5rem 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+#controls button {
+  background: transparent; /* Start invisible */
+  border: none;
+  color: #FFFFFF; 
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  border-radius: 50%; /* Circle hover effect */
+  cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important;
+  transition: all 0.2s ease;
+  backdrop-filter: none; /* No blur until hover */
+}
+
+#controls button:hover {
+  background: rgba(255, 255, 255, 0.15); /* Soft highlight on hover */
+}
+
+#controls button:active {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Rounded Address Bar (Transparent) */
+input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.3); /* Darker glass for better text contrast */
+  color: #FFFFFF; 
+  font-size: 1rem;
+  padding: 0.5rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle outline */
+  border-radius: 12px; 
+  outline: none;
+  transition: 0.3s all ease;
+  font-family: Open Sans;
+  backdrop-filter: blur(5px);
+}
+
+input::placeholder {
+  color: #CCCCCC; 
+}
+
+input#urlInput {
+  flex: 1;
+  margin-left: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.6rem 1.25rem;
+  border-radius: 20px; /* Pill shape like modern Chrome */
+}
+
+
+input:focus {
+  border: 1px solid #60a5fa; /* Blue highlight when focused */
+background: rgba(255, 255, 255, 0.05);
+}
+
+/* Rounded Buttons (Transparent) */
+button {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF; 
+  border: 1px solid rgba(255, 255, 255, 0.15); 
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important;
+  font-family: inherit;
+  transition: ease 0.3s;
+  backdrop-filter: blur(5px);
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px); /* Slight lift effect on hover */
+}
+
+#tab-bar {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.1);
+  font-family: 'Open Sans';
+  font-weight: bold;
+    align-items: center; /* Vertically aligns tabs and the + button */
+      scrollbar-width: none; 
+}
+
+#tab-bar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+#tab-bar::-webkit-scrollbar {
+  display: none; /* Hides scrollbar on Chrome/Safari */
+}
+
+.tab {
+  padding: 0.5rem 1rem;
+  background: transparent; /* No solid background */
+  border-right: 1px solid rgba(255, 255, 255, 0.08); /* Minimal divider */
+  /* border-radius: 12px 12px 0 0; */
+  margin-top: 6px; /* Pulls tabs down slightly from the ceiling */
+  border-radius: 10px 10px 0 0; /* Rounded top corners */
+  height: 34px; /* Consistent height */
+  cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 200px;
+  min-width: 100px;
+  font-size: 0.9rem;
+  color: #FFFFFF; 
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: tab-slide-in 0.3s ease-out;
+}
+
+@keyframes tab-slide-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tab:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+
+.tab.active {
+  background: rgba(255, 255, 255, 0.15); /* Slightly brighter active tab */
+  border-bottom: 2px solid #60a5fa;
+  color: #FFFFFF;
+}
+
+.tab-title {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.tab-title img {
+  pointer-events: none; /* Prevents the icon from interfering with clicks */
+}
+
+
+.tab-close {
+  font-size: 1.2rem;
+  line-height: 1;
+  border-radius: 5px;
+  padding: 4px;
+  transition: 0.25s ease;
+  color: #FFFFFF; 
+}
+
+.tab-close:hover {
+  color: #FF4444; /* Brighter red on hover */
+  background: rgba(255, 255, 255, 0.2);
+}
+
+#new-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 28px; /* Prevents shrinking */
+  margin: auto 10px; /* Centers it vertically in the bar */
+  background: rgba(255, 255, 255, 0.1); 
+  color: #FFFFFF; 
+  cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important;
+  font-size: 1.2rem;
+  border-radius: 50%; /* Makes it a perfect circle */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#new-tab:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+
+#content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: transparent;
+}
+
+.iframe-container {
+  flex: 1;
+  display: none;
+}
+
+.iframe-container.active {
+  display: block;
+}
+
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent; 
+}
+
+#devtools {
+  height: 0;
+  background: #1a1a1a; /* Kept opaque black for console clarity */
+  border-top: 1px solid rgba(255, 255, 255, 0.2); 
+  overflow: hidden;
+  transition: height 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+/* DevTools content remains opaque black as requested to prevent breaking */
+
+#devtools-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: #242424;
+  border-bottom: 1px solid #333;
+}
+/* ... all other devtools styles remain untouched ... */
+#devtools-content { display: flex; flex: 1; overflow: hidden; }
+#devtools-tabs { display: flex; gap: 0.5rem; }
+.devtools-tab { padding: 0.25rem 0.5rem; cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important; font-size: 0.85rem; }
+.devtools-tab.active { background: #333; color: #e0e0e0; border-radius: 4px; }
+#devtools-panels { flex: 1; display: flex; overflow: hidden; }
+.devtools-panel { flex: 1; display: none; padding: 0.5rem; overflow: auto; }
+.devtools-panel.active { display: flex; flex-direction: column; }
+#console-input { width: 100%; background: #121212; color: #e0e0e0; border: 1px solid #333; padding: 0.5rem; font-family: monospace; margin-top: 0.5rem; border-radius: 4px; }
+#console-output { flex: 1; overflow: auto; white-space: pre-wrap; padding: 0.5rem; background: #121212; border: 1px solid #333; margin-bottom: 0.5rem; border-radius: 4px; }
+.console-line { margin-bottom: 0.25rem; border-bottom: 1px solid #222; padding-bottom: 0.25rem; }
+.console-error { color: #f87171; }
+.console-warn { color: #fbbf24; }
+.console-info { color: #60a5fa; }
+.action-buttons { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.small-button { padding: 0.25rem 0.5rem; font-size: 0.85rem; }
+
+/*muahaha tiny lil status bar */
+.status-bar {
+    font-size: 10px;
+}
+
+#go-button {
+display: none !important;
+}
+
+.menu-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  z-index: 10000;
+}
+
+#menu-dots {
+  all: unset !important; /* Kill the global button styles */
+  cursor: pointer !important;
+  padding: 5px 12px !important;
+  font-size: 22px !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0; /* Aligns menu to the right edge of the dots */
+  top: 100%; /* Positions it directly below the dots */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  z-index: 9999;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  margin-top: 8px;
+  padding: 5px;
+  min-width: max-content; /* FIX: Makes menu wide enough for the text */
+}
+
+.dropdown-content button {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 10px 15px;
+  font-size: 0.85rem;
+  color: #FFFFFF;
+  cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important;
+  white-space: nowrap; /* FIX: Prevents text from wrapping to the next line */
+  border-radius: 8px;
+  transition: background 0.2s ease;
+  display: block;
+}
+
+.dropdown-content button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: none; /* Disables the 'lift' effect from your global button style */
+}
+
+.dropdown-content.show {
+  display: block;
+}
+
+#menu-dropdown {
+  display: none; 
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background: #1a1a1a !important; /* Solid dark background to ensure visibility */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 5px;
+  min-width: 180px;
+  
+  /* CRITICAL FIXES */
+  z-index: 2147483647 !important; /* Max possible z-index */
+  pointer-events: auto !important; /* Forces clickability */
+  user-select: auto !important; /* Allows interaction */
+}
+
+#menu-dropdown.show {
+  display: flex; /* Using flex instead of block */
+}
+
+#toggle-server {
+  /* Remove 'all: unset' - it destroys the hitbox */
+  display: flex !important;
+  align-items: center;
+  width: 100% !important; /* Fill the whole dropdown width */
+  box-sizing: border-box !important;
+  padding: 12px 15px !important; /* Large, consistent padding for a big hitbox */
+  
+  /* Reset appearance manually without breaking hitbox */
+  background: transparent;
+  border: none;
+  outline: none;
+  
+  color: #FFFFFF !important;
+  font-family: 'Open Sans', sans-serif !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+#toggle-server:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+
+#toggle-server::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  left: -10px;
+  right: -10px;
+  z-index: 1;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2); /* Tint */
+  backdrop-filter: blur(15px);    /* THE BLUR */
+  -webkit-backdrop-filter: blur(15px);
+  z-index: 100; /* Ensure it stays on top of the iframe */
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* Let clicks pass through once it fades */
+}
+
+.spinner {
+  border: 4px solid rgba(255,255,255,0.1);
+  border-top: 4px solid #60a5fa;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+
+  </style>
+</head>
+<body background="browserbg.png">
+  <div id="tab-bar">
+    <div id="new-tab">+</div>
+  </div>
+  
+  <div id="controls">
+    <button id="back-button">←</button>
+    <button id="forward-button">→</button>
+    <button id="refresh-button">↻</button>
+    <input id="urlInput" placeholder="Enter URL or search..." />
+     <div class="menu-container" style="position: relative; display: flex; align-items: center; z-index: 999999;">
+  <button id="menu-dots" type="button" onclick="toggleMyMenu(event)" style="all: unset; cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important; padding: 0 10px; font-size: 24px; color: white; display: block; position: relative; z-index: 1000000;">⋮</button>
+  
+  <div id="menu-dropdown" style="display: none; position: absolute; top: 40px; right: 0; background: #111; border: 1px solid #444; border-radius: 8px; padding: 5px; min-width: 180px; z-index: 1000001; box-shadow: 0 10px 30px rgba(0,0,0,1);">
+    <button id="toggle-server" type="button" onclick="handleServerToggle(event)" style="all: unset; display: block; width: calc(100% - 20px); padding: 12px 10px; color: white; font-family: sans-serif; font-size: 13px; cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important; border-radius: 4px; text-align: left; background: transparent;">Server: Proxy (Default)</button>
+  </div>
+</div>
+
+
+
+    <button id="go-button">Go</button>
+    <!-- <button id="toggle-devtools">{ }</button> -->
+  </div>
+  
+  <div id="content">
+    <!-- Iframe containers will be added here dynamically -->
+  </div>
+  
+  
+
+  <body oncontextmenu="return false;">
+
+  
+  <div class="status-bar">
+    <span id="status-text">Ready</span>
+    <span id="tab-count">Tabs: 1</span>
+  </div>
+
+  <script>
+    const proxyBase = "https://api.allorigins.win/raw?url=";
+    const tabs = [];
+    let activeTabId = null;
+    let tabCounter = 0;
+    
+    // Initialize the browser with one tab
+    document.addEventListener('DOMContentLoaded', () => {
+      createNewTab();
+      
+      // Set up event listeners
+    //   document.getElementById('new-tab').addEventListener('click', createNewTab);
+    document.getElementById('new-tab').addEventListener('click', () => createNewTab());
+
+      document.getElementById('go-button').addEventListener('click', loadPageInActiveTab);
+      document.getElementById('toggle-devtools').addEventListener('click', toggleDevTools);
+      document.getElementById('close-devtools').addEventListener('click', closeDevTools);
+      document.getElementById('console-input').addEventListener('keydown', handleConsoleInput);
+      document.getElementById('inject-js-button').addEventListener('click', injectJavaScript);
+      document.getElementById('clear-js-button').addEventListener('click', () => {
+        document.getElementById('js-inject-area').value = '';
+      });
+      document.getElementById('save-js-button').addEventListener('click', saveJavaScriptSnippet);
+      document.getElementById('saved-snippets').addEventListener('change', loadSavedSnippet);
+      document.getElementById('clear-network-log').addEventListener('click', () => {
+        document.getElementById('network-log').innerHTML = 'Network log cleared...';
+      });
+      document.getElementById('back-button').addEventListener('click', navigateBack);
+      document.getElementById('forward-button').addEventListener('click', navigateForward);
+      document.getElementById('refresh-button').addEventListener('click', refreshPage);
+      
+      // Set up devtools tabs
+      document.querySelectorAll('.devtools-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          document.querySelectorAll('.devtools-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.devtools-panel').forEach(p => p.classList.remove('active'));
+          
+          e.target.classList.add('active');
+          const panelId = e.target.dataset.panel;
+          document.getElementById(`${panelId}-panel`).classList.add('active');
+        });
+      });
+      
+      // Load saved snippets from localStorage
+      loadSavedSnippetsFromStorage();
+    });
+    
+    function createNewTab(url = null) {
+      const tabId = `tab-${tabCounter++}`;
+      
+      // Create tab button
+      const tabElement = document.createElement('div');
+      tabElement.className = 'tab';
+      tabElement.dataset.tabId = tabId;
+    tabElement.innerHTML = `<div class="tab-title">New Tab</div><span class="tab-close">×</span>`;
+
+
+      tabElement.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('tab-close')) {
+          activateTab(tabId);
+        }
+      });
+      
+      // Add close button functionality
+      const closeButton = tabElement.querySelector('.tab-close');
+      closeButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeTab(tabId);
+      });
+      
+      // Insert tab before the new tab button
+      document.getElementById('tab-bar').insertBefore(tabElement, document.getElementById('new-tab'));
+      
+      // Create iframe container
+      const iframeContainer = document.createElement('div');
+      iframeContainer.className = 'iframe-container';
+      iframeContainer.id = `container-${tabId}`;
+      
+      const iframe = document.createElement('iframe');
+      iframe.id = `iframe-${tabId}`;
+      iframe.sandbox = "allow-scripts allow-forms allow-same-origin";
+      
+      iframeContainer.appendChild(iframe);
+      document.getElementById('content').appendChild(iframeContainer);
+      
+      // Add to tabs array
+      tabs.push({
+        id: tabId,
+        title: 'New Tab',
+        url: '',
+        history: [],
+        currentHistoryIndex: -1
+      });
+      
+      // Activate the new tab
+      activateTab(tabId);
+      
+      // If URL is provided, load it
+      if (url) {
+        document.getElementById('urlInput').value = url;
+        loadPageInActiveTab();
+      }
+
+      activateTab(tabId);
+        updateTabTitle(tabId, 'New Tab');
+      
+      updateTabCount();
+    }
+    
+    function activateTab(tabId) {
+      // Deactivate all tabs
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.iframe-container').forEach(container => container.classList.remove('active'));
+      
+      // Activate selected tab
+      document.querySelector(`.tab[data-tab-id="${tabId}"]`).classList.add('active');
+      document.getElementById(`container-${tabId}`).classList.add('active');
+      
+      // Update active tab ID
+      activeTabId = tabId;
+      
+      // Update URL input with the active tab's URL
+      const tab = tabs.find(t => t.id === tabId);
+      if (tab && tab.url) {
+        document.getElementById('urlInput').value = tab.url;
+      } else {
+        document.getElementById('urlInput').value = '';
+      }
+      
+      updateNavigationButtons();
+    }
+    
+    function closeTab(tabId) {
+      // Don't close if it's the last tab
+      if (tabs.length <= 1) {
+        return;
+      }
+      
+      // Remove tab from DOM
+      const tabElement = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+      tabElement.remove();
+      
+      // Remove iframe container
+      const container = document.getElementById(`container-${tabId}`);
+      container.remove();
+      
+      // Remove from tabs array
+      const tabIndex = tabs.findIndex(t => t.id === tabId);
+      tabs.splice(tabIndex, 1);
+      
+      // If closing the active tab, activate another one
+      if (activeTabId === tabId) {
+        // Activate the tab to the left, or the first tab if there's none
+        const newActiveTab = tabs[Math.max(0, tabIndex - 1)];
+        activateTab(newActiveTab.id);
+      }
+      
+      updateTabCount();
+    }
+    
+function updateTabTitle(tabId, title) {
+  const tab = tabs.find(t => t.id === tabId);
+  if (!tab) return;
+  
+  tab.title = title || 'New Tab';
+  const tabElement = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+  if (!tabElement) return;
+
+  let iconUrl = "🌐"; // Default emoji if no icon found
+  let domain = "";
+
+  // 1. SAFELY try to extract the domain
+  try {
+    if (tab.url && tab.url.startsWith('http')) {
+      domain = new URL(tab.url).hostname;
+    }
+  } catch (e) { 
+    domain = ""; // Fallback if URL is invalid or just a search term
+  }
+
+  // 2. Build the icon HTML (Using Google's Favicon Service)
+  let iconHtml = `<span style="margin-right:8px; font-size:14px; flex-shrink:0;">${iconUrl}</span>`;
+  
+  if (domain) {
+    const googleIcon = `https://www.google.com{domain}&sz=32`;
+    iconHtml = `
+      <img src="${googleIcon}" 
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';" 
+           onload="this.style.display='inline-block'; this.nextElementSibling.style.display='none';"
+           style="display:none; width:16px; height:16px; margin-right:8px; flex-shrink:0; border-radius:2px;">
+      <span style="margin-right:8px; font-size:14px; display:inline-block;">🌐</span>
+    `;
+  }
+
+  // 3. Update the Tab Element UI
+  tabElement.innerHTML = `
+    <div class="tab-title" style="display:flex; align-items:center; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; pointer-events:none; font-size: 12px;">
+      ${iconHtml}
+      <span style="overflow:hidden; text-overflow:ellipsis;">${tab.title}</span>
+    </div>
+    <span class="tab-close" onclick="event.stopPropagation(); closeTab('${tabId}')" style="margin-left:8px; opacity:0.5; font-size:16px; cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important;">×</span>
+  `;
+}
+
+
+
+let useEmbed = false;
+
+// Toggle Menu Visibility
+document.getElementById('menu-dots').onclick = () => {
+  document.getElementById('menu-dropdown').classList.toggle('show');
+};
+
+// Close menu if clicking outside
+window.onclick = (e) => {
+  if (!e.target.matches('#menu-dots')) {
+    document.getElementById('menu-dropdown').classList.remove('show');
+  }
+};
+
+// Server Toggle Logic
+document.getElementById('toggle-server').onclick = function() {
+  useEmbed = !useEmbed;
+  this.innerText = useEmbed ? "Change server (Current: Embed)" : "Change server (Current: Proxy)";
+  
+  if (activeTabId) {
+    const container = document.getElementById(`container-${activeTabId}`);
+    const currentViewer = container.querySelector('iframe, embed');
+    const currentUrl = document.getElementById('urlInput').value;
+
+    // Create the new element type
+    const newViewer = document.createElement(useEmbed ? 'embed' : 'iframe');
+    newViewer.id = `iframe-${activeTabId}`; // Keeping ID consistent for your existing functions
+    newViewer.style.width = "100%";
+    newViewer.style.height = "100%";
+    newViewer.style.border = "none";
+    
+    if (!useEmbed) {
+       newViewer.sandbox = "allow-scripts allow-forms allow-same-origin";
+    }
+
+    // Swap them out
+    container.innerHTML = '';
+    container.appendChild(newViewer);
+    
+    // Trigger reload with new "server" logic
+    if (currentUrl) loadPageInActiveTab();
+  }
+  updateStatus(useEmbed ? "Switched to Direct Embed" : "Switched to AllOrigins Proxy");
+};
+
+// Modify your existing createNewTab to respect the setting
+const originalCreateTab = createNewTab;
+createNewTab = function(url) {
+  originalCreateTab(url);
+  // Ensure new tabs match current server setting
+  const container = document.getElementById(`container-${activeTabId}`);
+  if (useEmbed && container.querySelector('iframe')) {
+      const embed = document.createElement('embed');
+      embed.id = `iframe-${activeTabId}`;
+      embed.style.width = "100%";
+      embed.style.height = "100%";
+      container.innerHTML = '';
+      container.appendChild(embed);
+  }
+};
+
+
+
+    
+    function looksLikeUrl(str) {
+      return /\./.test(str) && !/\s/.test(str);
+    }
+
+function prepareUrl(inputStr) {
+  inputStr = inputStr.trim();
+  if (!inputStr) return null;
+
+  if (looksLikeUrl(inputStr)) {
+    if (!/^https?:\/\//i.test(inputStr)) {
+      inputStr = "https://" + inputStr;
+    }
+    return inputStr;
+  } else {
+    const query = encodeURIComponent(inputStr);
+    return `https://mojeek.com/search?q=${query}`;
+  }
+}
+
+    
+    
+const loadingMessages = [
+  "No ultraviolet?!",
+  "Bro can only play iready math games",
+  "Is it still christmas?",
+  "pluh pluh pluh",
+  "Please add Roblox Minecraft Fortnite.",
+  "if someone leaks this file istg",
+  "Stickman and guns is scary guys trust me",
+  "My twin quyen is gonna win",
+  "Jamaica we have a bobsled team",
+  "Everyone say we buy stuff cheap like dirty old suzuki and rusted out jeep",
+  "When hurricane come we climb into tree",
+  "Jamaica we have a bobsled team",
+  "its 5 am right now",
+  "im typing these at 5 am instead of sleeping",
+  "i cant think of anything to write am i this unfunny",
+  "Mr Christmas!",
+  "Noah Tongue",
+  "I remember i saw all of you guys toddling around!!",
+  "Guess i'll die",
+  "It's christmas. OOOOOOOOOOOOOOO",
+  "ts lowk pmo icl sybau",
+  "500 cigarettes",
+  "Roblox thought I was 9",
+  "Do you want to build a granny",
+  "Never play ARTHURS NIGHTMARE at 3 AM...",
+  "Goat simulator is the goat",
+  "Angry birds space plz vro 🙏🙏🙏",
+  "bro what is this lame ahh movie",
+  "abdul malik",
+  "Did you know 1 in 2 people are gay? Well, I'm not gay. ...",
+  "Noah tried to get me into steal a brainrot 🤓",
+  "Calculus",
+  "Remember, you can always use a magnet to shut off someones chromebook when they annoy you",
+  "I LOVE getting 4 hours of sleep! And it's not even that hard to stay awake, like I can literally ju",
+  "My iphone passcode is 823892 if anyone needs it",
+  "Grannys house",
+  "Mr bui pls dont block downloads i need this 🙏",
+  "Finley lane so tuff",
+  "I got shot",
+  "Pressing reload + power button temporarily removes the school blockers",
+  "dev can this load a bit faster than the average coke addict",
+  "Holy shit i'm hungry",
+  "Optimized for zeroOS!",
+  "I really wanna clone GlacierOS huh",
+  "why does everyone have truffled",
+  "Me: Don't share my sites to your friends Also me: why does nobody use my sites :(((",
+  "Some 4 year old at home depot saying tung tung tung sahur in his moms lap",
+  "is this tuff",
+  "Damn is 😂🎉",
+];
+
+const errorMessages = [
+  "Mr. Christmas says NO.",
+  "What is this diddy blud doing on the proxy browser is blud einstein",
+  "Bada bing bada boom!",
+  "The hamster powering the server got off the wheel",
+  "Bro used a magnet on the chromebook",
+  "pluh",
+  "The bobsled crashed",
+  "Noah Tongue stole the packets",
+  "I turned the gravity off.",
+  "You made us run out of bullets!",
+  "¯\(°_o)/¯",
+  "Its a user error, i swear!",
+  "Damn isn't 😢🎊",
+  "Whoops",
+  "HAHA!",
+  "Pew pew! Pew pew pew!",
+  "Your phone isnt linging",
+  "Go, Guardian!",
+  "Did you just try to load roblox *audiencelaughter.ogg*",
+  "Success loading site!.. totally",
+  "STOP MOM YOU JUST DESTROYED THE SERVER! -What?",
+  ":/",
+  "Server get back to work",
+  "Server you need to lock in",
+];
+
+function getRandomError() {
+  return errorMessages[Math.floor(Math.random() * errorMessages.length)];
+}
+
+
+// Helper to get a random message
+function getRandomSplash() {
+  const index = Math.floor(Math.random() * loadingMessages.length);
+  return loadingMessages[index];
+}
+
+async function loadPageInActiveTab(isNavigating = false) {
+  const urlInput = document.getElementById('urlInput');
+  const goButton = document.getElementById('go-button');
+  
+  if (!activeTabId) return;
+
+  let rawInput = urlInput.value.trim();
+  if (!rawInput) return;
+
+  const target = prepareUrl(rawInput);
+  urlInput.value = target;
+  urlInput.style.opacity = "0.5";
+  goButton.innerText = "Wait...";
+
+  const tab = tabs.find(t => t.id === activeTabId);
+  const container = document.getElementById(`container-${activeTabId}`);
+  let viewer = document.getElementById(`iframe-${activeTabId}`);
+
+  // 1. CREATE THE BLUR OVERLAY
+  const loader = document.createElement('div');
+  loader.className = 'loading-overlay-dynamic'; // Unique class to avoid conflicts
+  loader.style = `
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    z-index: 10000; transition: opacity 0.4s ease;
+  `;
+  
+  loader.innerHTML = `
+    <div class="spinner" style="border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #60a5fa; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+    <div style="color: #00ffff; font-family: 'Open Sans'; font-weight: bold; text-align: center; padding: 0 30px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+      ${getRandomSplash()}
+    </div>
+    <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+  `;
+  container.appendChild(loader);
+
+  try {
+    updateStatus(`Loading ${target}...`);
+
+    // 2. HISTORY LOGIC
+    if (!isNavigating && target !== tab.url) {
+      // Remove forward history if navigating to a new place
+      tab.history = tab.history.slice(0, tab.currentHistoryIndex + 1);
+      tab.history.push(target);
+      tab.currentHistoryIndex++;
+    }
+
+    if (useEmbed) {
+      // DIRECT EMBED MODE
+      const newEmbed = document.createElement('embed');
+      newEmbed.id = `iframe-${activeTabId}`;
+      newEmbed.src = target;
+      newEmbed.style.width = "100%";
+      newEmbed.style.height = "100%";
+      newEmbed.style.border = "none";
+      
+      container.innerHTML = ''; 
+      container.appendChild(newEmbed);
+      tab.url = target;
+      updateTabTitle(activeTabId, target.replace(/^https?:\/\//i, ''));
+    } else {
+      // PROXY MODE
+      const response = await fetch(proxyBase + encodeURIComponent(target));
+      if (!response.ok) throw new Error("Proxy failed to reach site");
+
+      const html = await response.text();
+      viewer.srcdoc = injectProxyScript(html, target);
+      tab.url = target;
+      
+      const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i);
+      updateTabTitle(activeTabId, titleMatch ? titleMatch[1] : target);
+    }
+    updateStatus("Ready");
+  } catch (err) {
+    updateStatus("Error");
+    const errorHtml = `
+      <body style="background:#111; color:#ff5f5f; font-family:'Open Sans', sans-serif; padding:2rem; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; overflow:hidden;">
+        <div style="text-align:center; max-width: 400px;">
+          <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: #fff;">${getRandomError()}</h1>
+          <p style="opacity: 0.6; margin-bottom: 1.5rem; font-size: 0.9rem;">Error details: ${err.message} Try opening a new tab and switching the proxy server. You have to click the very top of the button, it's a bad hitbox. Then in the new tab open the same site, or try this try again button.</p>
+          <button onclick="window.parent.loadPageInActiveTab(true)" 
+                  style="background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); padding:12px 25px; border-radius:12px; font-weight:bold; cursor: url(https://i.imgur.com/Kp1oxMB.png), pointer!important; transition: 0.2s; backdrop-filter: blur(10px);">
+            Try Again
+          </button>
+        </div>
+      </body>`;
+    if (useEmbed) {
+        container.innerHTML = `<iframe id="iframe-${activeTabId}" srcdoc='${errorHtml}' style="width:100%;height:100%;border:none;"></iframe>`;
+    } else {
+        viewer.srcdoc = errorHtml;
+    }
+  } finally {
+    // 3. CLEANUP
+    loader.style.opacity = '0';
+    setTimeout(() => { if(loader.parentNode) loader.remove(); }, 400);
+    
+    urlInput.style.opacity = "1";
+    goButton.innerText = "Go";
+    updateNavigationButtons(); // Update the Back/Forward states
+  }
+}
+
+
+    
+    function injectProxyScript(html, baseUrl) {
+      const baseTag = `<base href="${baseUrl}">`;
+      const interceptScript = `
+        <script>
+          // Intercept link clicks
+          document.addEventListener('click', e => {
+            const a = e.target.closest('a[href]');
+            if (a && a.href && a.target !== '_blank') {
+              e.preventDefault();
+              parent.postMessage({ type: 'navigate', href: a.href }, '*');
+            }
+          });
+          
+          // Intercept console methods
+          const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            info: console.info
+          };
+          
+          console.log = function(...args) {
+            originalConsole.log(...args);
+            parent.postMessage({ 
+              type: 'console', 
+              method: 'log', 
+              args: args.map(arg => String(arg))
+            }, '*');
+          };
+          
+          console.error = function(...args) {
+            originalConsole.error(...args);
+            parent.postMessage({ 
+              type: 'console', 
+              method: 'error', 
+              args: args.map(arg => String(arg))
+            }, '*');
+          };
+          
+          console.warn = function(...args) {
+            originalConsole.warn(...args);
+            parent.postMessage({ 
+              type: 'console', 
+              method: 'warn', 
+              args: args.map(arg => String(arg))
+            }, '*');
+          };
+          
+          console.info = function(...args) {
+            originalConsole.info(...args);
+            parent.postMessage({ 
+              type: 'console', 
+              method: 'info', 
+              args: args.map(arg => String(arg))
+            }, '*');
+          };
+          
+          // Intercept fetch requests for network panel
+          const originalFetch = window.fetch;
+          window.fetch = function(resource, init) {
+            const url = typeof resource === 'string' ? resource : resource.url;
+            parent.postMessage({ 
+              type: 'network', 
+              method: init?.method || 'GET',
+              url: url
+            }, '*');
+            return originalFetch.apply(this, arguments);
+          };
+          
+          // Intercept XHR for network panel
+          const originalXHROpen = XMLHttpRequest.prototype.open;
+          XMLHttpRequest.prototype.open = function(method, url) {
+            this._method = method;
+            this._url = url;
+            return originalXHROpen.apply(this, arguments);
+          };
+          
+          const originalXHRSend = XMLHttpRequest.prototype.send;
+          XMLHttpRequest.prototype.send = function() {
+            parent.postMessage({ 
+              type: 'network', 
+              method: this._method,
+              url: this._url
+            }, '*');
+            return originalXHRSend.apply(this, arguments);
+          };
+        <\/script>
+      `;
+      
+      const styleOverride = `
+        <style>
+          /* Optional: Add any style overrides here */
+        </style>
+      `;
+      
+      if (/<head[^>]*>/i.test(html)) {
+        return html.replace(/<head[^>]*>/i, match => match + baseTag + interceptScript + styleOverride);
+      } else {
+        return baseTag + interceptScript + styleOverride + html;
+      }
+    }
+
+    // Ensure this is global
+function toggleMyMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('menu-dropdown');
+  menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'block' : 'none';
+}
+
+function handleServerToggle(e) {
+  e.stopPropagation();
+  
+  // THE ALERT TEST
+  alert("SERVER TOGGLED!"); 
+
+  useEmbed = !useEmbed;
+  const btn = document.getElementById('toggle-server');
+  
+  if (useEmbed) {
+    btn.innerText = "Server: Direct Embed";
+  } else {
+    btn.innerText = "Server: Proxy (Default)";
+  }
+  
+  // Close menu and reload
+  document.getElementById('menu-dropdown').style.display = 'none';
+  if (typeof loadPageInActiveTab === 'function') {
+    loadPageInActiveTab();
+  }
+}
+
+// Close menu if clicking the window
+window.onmousedown = function(e) {
+  const menu = document.getElementById('menu-dropdown');
+  if (menu && menu.style.display === 'block' && !menu.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+};
+
+    
+    function toggleDevTools() {
+      const devtools = document.getElementById('devtools');
+      devtools.classList.toggle('open');
+    }
+    
+    function closeDevTools() {
+      document.getElementById('devtools').classList.remove('open');
+    }
+    
+    function handleConsoleInput(e) {
+      if (e.key === 'Enter') {
+        const input = document.getElementById('console-input');
+        const code = input.value;
+        
+        if (!code.trim()) return;
+        
+        // Log the input to the console output
+        appendToConsole('log', `> ${code}`);
+        
+        // Execute in the active iframe
+        executeInActiveTab(code);
+        
+        // Clear the input
+        input.value = '';
+      }
+    }
+    
+    function executeInActiveTab(code) {
+      if (!activeTabId) return;
+      
+      const iframe = document.getElementById(`iframe-${activeTabId}`);
+      try {
+        // Execute the code in the iframe and get the result
+        const result = iframe.contentWindow.eval(`
+          try {
+            const result = eval(${JSON.stringify(code)});
+            if (result !== undefined) {
+              console.log(result);
+            }
+            "SUCCESS";
+          } catch (e) {
+            console.error(e.message);
+            "ERROR: " + e.message;
+          }
+        `);
+        
+        if (result && result.startsWith && result.startsWith('ERROR:')) {
+          appendToConsole('error', result);
+        }
+      } catch (e) {
+        appendToConsole('error', `Failed to execute: ${e.message}`);
+      }
+    }
+    
+    function injectJavaScript() {
+      const code = document.getElementById('js-inject-area').value;
+      if (!code.trim()) return;
+      
+      executeInActiveTab(code);
+      updateStatus('JavaScript injected');
+    }
+    
+    function appendToConsole(type, message) {
+      const consoleOutput = document.getElementById('console-output');
+      const line = document.createElement('div');
+      line.className = `console-line console-${type}`;
+      line.textContent = message;
+      consoleOutput.appendChild(line);
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+    
+    function saveJavaScriptSnippet() {
+      const code = document.getElementById('js-inject-area').value;
+      if (!code.trim()) return;
+      
+      const snippetName = prompt('Enter a name for this snippet:');
+      if (!snippetName) return;
+      
+      // Get existing snippets
+      let savedSnippets = JSON.parse(localStorage.getItem('procksiSnippets') || '{}');
+      savedSnippets[snippetName] = code;
+      
+      // Save back to localStorage
+      localStorage.setItem('procksiSnippets', JSON.stringify(savedSnippets));
+      
+      loadSavedSnippetsFromStorage();
+      updateStatus(`Snippet "${snippetName}" saved`);
+    }
+    
+    function loadSavedSnippetsFromStorage() {
+      const savedSnippets = JSON.parse(localStorage.getItem('procksiSnippets') || '{}');
+      const select = document.getElementById('saved-snippets');
+      
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+      
+      for (const [name, code] of Object.entries(savedSnippets)) {
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = name;
+        select.appendChild(option);
+      }
+    }
+    
+    function loadSavedSnippet(e) {
+      const code = e.target.value;
+      if (code) {
+        document.getElementById('js-inject-area').value = code;
+      }
+      // Reset the select
+      setTimeout(() => {
+        e.target.selectedIndex = 0;
+      }, 100);
+    }
+    
+    function navigateBack() {
+  const tab = tabs.find(t => t.id === activeTabId);
+  if (tab && tab.currentHistoryIndex > 0) {
+    tab.currentHistoryIndex--;
+    const prevUrl = tab.history[tab.currentHistoryIndex];
+    document.getElementById('urlInput').value = prevUrl;
+    loadPageInActiveTab(true); // 'true' tells the engine NOT to add a new history entry
+  }
+}
+
+function navigateForward() {
+  const tab = tabs.find(t => t.id === activeTabId);
+  if (tab && tab.currentHistoryIndex < tab.history.length - 1) {
+    tab.currentHistoryIndex++;
+    const nextUrl = tab.history[tab.currentHistoryIndex];
+    document.getElementById('urlInput').value = nextUrl;
+    loadPageInActiveTab(true);
+  }
+}
+
+function refreshPage() {
+  loadPageInActiveTab(true); // Simply re-loads the current URL
+}
+
+    
+    function updateNavigationButtons() {
+  const tab = tabs.find(t => t.id === activeTabId);
+  const backBtn = document.getElementById('back-button');
+  const forwardBtn = document.getElementById('forward-button');
+
+  if (!tab) return;
+
+  // Disable 'Back' if at the start of history
+  backBtn.disabled = tab.currentHistoryIndex <= 0;
+  backBtn.style.opacity = backBtn.disabled ? "0.3" : "1";
+
+  // Disable 'Forward' if at the end of history
+  forwardBtn.disabled = tab.currentHistoryIndex >= tab.history.length - 1;
+  forwardBtn.style.opacity = forwardBtn.disabled ? "0.3" : "1";
+}
+
+    
+    function updateStatus(message) {
+      document.getElementById('status-text').textContent = message;
+    }
+    
+    function updateTabCount() {
+      document.getElementById('tab-count').textContent = `Tabs: ${tabs.length}`;
+    }
+    
+    window.addEventListener("message", e => {
+      if (e.data?.type === "navigate" && e.data.href) {
+        document.getElementById('urlInput').value = e.data.href;
+        loadPageInActiveTab();
+      } else if (e.data?.type === "console") {
+        appendToConsole(e.data.method, e.data.args.join(' '));
+      } else if (e.data?.type === "network") {
+        const networkLog = document.getElementById('network-log');
+        const entry = document.createElement('div');
+        entry.className = 'console-line';
+        entry.textContent = `${e.data.method}: ${e.data.url}`;
+        networkLog.appendChild(entry);
+        networkLog.scrollTop = networkLog.scrollHeight;
+      }
+      else if (e.data?.type === "reload") {
+        loadPageInActiveTab(); // Re-runs the whole engine when button is clicked
+      }
+    });
+    
+    // URL input event
+    document.getElementById('urlInput').addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        loadPageInActiveTab();
+      }
+    });
+
+// Add to <script>
+let escapeCount = 0;
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    escapeCount++;
+    setTimeout(() => { escapeCount = 0; }, 500);
+    if (escapeCount === 2) {
+      document.title = "Clever | Portal";
+      loadPageInActiveTab();
+    }
+  }
+});
+
+
+const menuDots = document.getElementById('menu-dots');
+const menuDiv = document.getElementById('menu-dropdown');
+const serverBtn = document.getElementById('toggle-server');
+
+// Using 'mousedown' because 'click' is often swallowed by iframes
+menuDots.onmousedown = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  const isHidden = menuDiv.style.display === 'none' || menuDiv.style.display === '';
+  menuDiv.style.display = isHidden ? 'block' : 'none';
+};
+
+serverBtn.onmousedown = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+    
+  useEmbed = !useEmbed;
+  
+  // Logic to swap text manually
+  if (useEmbed) {
+    serverBtn.innerText = "Server: Direct Embed";
+  } else {
+    serverBtn.innerText = "Server: Proxy (Default)";
+  }
+  
+  if (activeTabId) loadPageInActiveTab();
+  
+  menuDiv.style.display = 'none';
+};
+
+// Global close listener
+window.addEventListener('mousedown', (e) => {
+  if (menuDiv.style.display === 'block' && !menuDiv.contains(e.target)) {
+    menuDiv.style.display = 'none';
+  }
+});
+
+  </script>
+</html>
+
